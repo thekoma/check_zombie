@@ -1,5 +1,4 @@
 #!/bin/bash
-###### V1.0
 ###### Check Zombie process older than X time
 ###### Script by Andrea Cervesato
 
@@ -18,7 +17,6 @@ older=$3
 grep_procs="z,Z,+z,+Z"
 ################################################################################################################################
 count=0
-#for procs in $(ps -eo stat,pid,etime --sort start_time|grep $grep_procs|awk '{print $3}'); do
 for procs in $(ps -eo stat,pid,etime --sort start_time|grep ^[$grep_procs]|awk '{print $3}'); do
 	secs="$(echo $procs|sed 's/:\|-/ /g;' |awk '{print $4" "$3" "$2" "$1}' | awk '{print $1+$2*60+$3*3600+$4*86400}')"
 	if [ $secs -gt $older ]; then
