@@ -1,3 +1,4 @@
+[![Build Status](https://drone.koma.link/api/badges/koma/check_zombie/status.svg)](https://drone.koma.link/koma/check_zombie)
 # check_zombies for Nagios
 This is a simple script to check the presence of zombies processes on the machine.
 
