@@ -1,0 +1,8 @@
+kind: pipeline
+name: default
+
+steps:
+- name: Verify ShellCode
+  image: koalaman/shellcheck-alpine
+  commands:
+  - shellcheck check_zombies
