@@ -1,11 +1,16 @@
 #!/bin/bash
-###### Check Zombie process older than X time
-###### Script by Andrea Cervesato
+# Author: Andrea Cervesato
+# Scope: Check Zombie process older than X time
+
+# Default Values
 warning=5
 critical=10
 older=900
 performance=false
 grep_procs="z,Z,+z,+Z"
+
+# Functions
+
 print_help() {
 	echo -e "Usage: [ -w <integer> ] [ -c <integer> ] [ -s <integer> ] [ -p ] [ -t ]"
 	echo -e "-w \t\t(Optional) Minimum number of Zombie process to trigger warning. Default: $warning"
@@ -19,7 +24,7 @@ print_help() {
 }
 main() {
 	count=0
-	for procs in $(ps -eo stat,pid,etime --sort start_time|grep ^[$grep_procs]|awk '{print $3}'); do
+	for procs in $(ps -eo stat,pid,etime --sort start_time|grep ^["$grep_procs"]|awk '{print $3}'); do
 		secs="$(echo $procs|sed 's/:\|-/ /g;' |awk '{print $4" "$3" "$2" "$1}' | awk '{print $1+$2*60+$3*3600+$4*86400}')"
 		if [ $secs -gt $older ]; then
 			let count=$count+1
@@ -28,14 +33,14 @@ main() {
 	if $performance ; then perf=" | processes=${count}a;$warning;$critical;;"; fi
 	if [ $count -gt $warning ]; then
 		if [ $count -lt $critical ]; then
-			echo WARNING: $count zombie procs older than $older seconds${compatibility}${perf}
+			echo "WARNING: $count zombie procs older than $older seconds${compatibility}${perf}"
 			exit 1
 		else
-			echo CRITICAL: $count zombie procs older than $older seconds${compatibility}${perf}
+			echo "CRITICAL: $count zombie procs older than $older seconds${compatibility}${perf}"
 			exit 2
 		fi
 	else
-		echo OK: $count zombie procs older than $older seconds${compatibility}${perf}
+		echo "OK: $count zombie procs older than $older seconds${compatibility}${perf}"
 		exit 0
 	fi
 }
@@ -52,27 +57,29 @@ check_coerency() {
 		exit 2
 	fi
 }
+
+# Main Program
 count_opts=0
 while getopts ":w:c:s:pt:" opt; do
   let count_opts=$count_opts+1 
   case $opt in
     w)
-      check_integer $OPTARG
-      warning=$OPTARG
+      check_integer "${OPTARG}"
+      warning="${OPTARG}"
       ;;
     c)
-      check_integer $OPTARG
-      critical=$OPTARG
+      check_integer "${OPTARG}"
+      critical="${OPTARG}"
       ;;
     s)
-      check_integer $OPTARG
-      older=$OPTARG
+      check_integer "${OPTARG}"
+      older="${OPTARG}"
       ;;
     p)
       performance=true
       ;;
     t)
-      grep_procs=$OPTARG
+      grep_procs="${OPTARG}"
       ;;
     \?|h)
       print_help
