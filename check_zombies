@@ -33,8 +33,8 @@ main() {
 		fi
 	done
 	if $performance ; then perf=" | processes=${count}a;$warning;$critical;;"; fi
-	if [ ${count} -gt ${warning} ]; then
-		if [ $count -lt $critical ]; then
+	if [ "${count}" -gt ${warning} ]; then
+		if [ "${count}" -lt ${critical} ]; then
 			echo "WARNING: $count zombie procs older than $older seconds${compatibility}${perf}"
 			exit 1
 		else
@@ -90,7 +90,7 @@ while getopts ":w:c:s:pt:h?" opt; do
 done
 
 # Fallback
-if [ $count_opts -eq 0 ] && [ $# -eq 3 ]; then
+if [ "${count_opts}" -eq 0 ] && [ $# -eq 3 ]; then
 	warning=$1
 	critical=$2
 	older=$3
