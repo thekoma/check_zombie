@@ -29,7 +29,7 @@ main() {
 	for procs in $(ps -eo stat,pid,etime --sort start_time|grep ^["$grep_procs"]|awk '{print $3}'); do
 		secs=$(echo "${procs}"|sed 's/:\|-/ /g;' |awk '{print $4" "$3" "$2" "$1}' | awk '{print $1+$2*60+$3*3600+$4*86400}')
 		if [ "${secs}" -gt $older ]; then
-			let count=$count+1
+			((count++))
 		fi
 	done
 	if $performance ; then perf=" | processes=${count}a;$warning;$critical;;"; fi
@@ -62,8 +62,8 @@ check_coerency() {
 
 # Main Program
 count_opts=0
-while getopts ":w:c:s:pt:" opt; do
-  let count_opts=$count_opts+1 
+while getopts ":w:c:s:pt:h?" opt; do
+  ((count_opts++))
   case $opt in
     w)
       check_integer "${OPTARG}"
@@ -83,7 +83,7 @@ while getopts ":w:c:s:pt:" opt; do
     t)
       grep_procs="${OPTARG}"
       ;;
-    \?|h)
+    h|?)
       print_help
       ;;
   esac
@@ -94,7 +94,7 @@ if [ $count_opts -eq 0 ] && [ $# -eq 3 ]; then
 	warning=$1
 	critical=$2
 	older=$3
-	compatibility=' (Compatibility mode)'
+	compatibility='(Compatibility mode)'
 fi
 check_coerency
 main
