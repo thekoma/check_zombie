@@ -24,14 +24,16 @@ print_help() {
 }
 main() {
 	count=0
+	# There is no way to pgrep a flag sadly.
+	# shellcheck disable=SC2009
 	for procs in $(ps -eo stat,pid,etime --sort start_time|grep ^["$grep_procs"]|awk '{print $3}'); do
-		secs="$(echo $procs|sed 's/:\|-/ /g;' |awk '{print $4" "$3" "$2" "$1}' | awk '{print $1+$2*60+$3*3600+$4*86400}')"
-		if [ $secs -gt $older ]; then
+		secs=$(echo "${procs}"|sed 's/:\|-/ /g;' |awk '{print $4" "$3" "$2" "$1}' | awk '{print $1+$2*60+$3*3600+$4*86400}')
+		if [ "${secs}" -gt $older ]; then
 			let count=$count+1
 		fi
 	done
 	if $performance ; then perf=" | processes=${count}a;$warning;$critical;;"; fi
-	if [ $count -gt $warning ]; then
+	if [ ${count} -gt ${warning} ]; then
 		if [ $count -lt $critical ]; then
 			echo "WARNING: $count zombie procs older than $older seconds${compatibility}${perf}"
 			exit 1
