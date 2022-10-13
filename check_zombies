@@ -13,28 +13,28 @@ grep_procs="z,Z,+z,+Z"
 
 print_help() {
 	echo -e "Usage: [ -w <integer> ] [ -c <integer> ] [ -s <integer> ] [ -p ] [ -t ]"
-	echo -e "-w \t\t(Optional) Minimum number of Zombie process to trigger warning. Default: $warning"
-	echo -e "-c \t\t(Optional) Minimum number of Zombie process to trigger critical. Default: $critical"
-	echo -e "-s \t\t(Optional) Maximum age in seconds. Default: $older"
+	echo -e "-w \t\t(Optional) Minimum number of Zombie process to trigger warning. Default: ${warning}"
+	echo -e "-c \t\t(Optional) Minimum number of Zombie process to trigger critical. Default: ${critical}"
+	echo -e "-s \t\t(Optional) Maximum age in seconds. Default: ${older}"
 	echo -e "-p \t\t(Optional) Print Performances data. Default: false"
-	echo -e "-p \t\t(Optional) Process flag to be counted (Default to '$grep_procs')"
+	echo -e "-p \t\t(Optional) Process flag to be counted (Default to '${grep_procs}')"
 	echo -e "-h \t\t Print this help"
-	echo -e "Warning for compatibility mode you can execute the command with [ $0 WARN CRIT AGE_IN_SECS ] ."
+	echo -e "Warning for compatibility mode you can execute the command with [ ${0} WARN CRIT AGE_IN_SECS ] ."
 	exit 0
 }
 main() {
 	count=0
 	# There is no way to pgrep a flag sadly.
 	# shellcheck disable=SC2009
-	for procs in $(ps -eo stat,pid,etime --sort start_time|grep ^["$grep_procs"]|awk '{print $3}'); do
+	for procs in $(ps -eo stat,pid,etime --sort start_time|grep "^[${grep_procs}]"|awk '{print $3}'); do
 		secs=$(echo "${procs}"|sed 's/:\|-/ /g;' |awk '{print $4" "$3" "$2" "$1}' | awk '{print $1+$2*60+$3*3600+$4*86400}')
-		if [ "${secs}" -gt $older ]; then
+		if [ "${secs}" -gt "${older}" ]; then
 			((count++))
 		fi
 	done
-	if $performance ; then perf=" | processes=${count}a;$warning;$critical;;"; fi
-	if [ "${count}" -gt ${warning} ]; then
-		if [ "${count}" -lt ${critical} ]; then
+	if ${performance} ; then perf=" | processes=${count}a;$warning;$critical;;"; fi
+	if [ "${count}" -gt "${warning}" ]; then
+		if [ "${count}" -lt "${critical}" ]; then
 			echo "WARNING: $count zombie procs older than $older seconds${compatibility}${perf}"
 			exit 1
 		else
@@ -49,12 +49,12 @@ main() {
 
 check_integer() {
 	re='^[0-9]+$'
-	if ! [[ $1 =~ $re ]] ; then
+	if ! [[ ${1} =~ $re ]] ; then
 	   echo "error: Expected an integer value ($1)" >&2; exit 1
 	fi
 }
 check_coerency() {
-	if [ $warning -gt $critical ]; then
+	if [ "${warning}" -gt "${critical}" ]; then
 		echo "error: Warning value ($warning) is bigger than Critical ($critical)"
 		exit 2
 	fi
@@ -91,9 +91,9 @@ done
 
 # Fallback
 if [ "${count_opts}" -eq 0 ] && [ $# -eq 3 ]; then
-	warning=$1
-	critical=$2
-	older=$3
+	warning=${1}
+	critical=${2}
+	older=${3}
 	compatibility='(Compatibility mode)'
 fi
 check_coerency
